@@ -410,9 +410,7 @@ show_aqi_legend()
 day_df = filter_selected_date(raw_df, selected_date_value)
 selected_df = filter_selected_time(raw_df, selected_date_value, selected_time)
 st.caption(
-    f"目前讀取 {selected_date_label} 共 {len(day_df)} 筆資料，"
-    f"時間範圍：{day_df['datetime'].min().strftime('%H:%M')}～{day_df['datetime'].max().strftime('%H:%M')}"
-)
+
 
 if day_df.empty:
     st.error(f"目前沒有 {selected_date_label} 的資料。請確認 CSV 是否包含該日期。")
