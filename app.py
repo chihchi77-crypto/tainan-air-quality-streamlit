@@ -7,7 +7,7 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 st.set_page_config(
-    page_title="臺南 6/16 車流、空氣品質與氣象曲線圖",
+    page_title="臺南車流、空氣品質與氣象曲線圖",
     page_icon="🌿",
     layout="wide",
 )
@@ -304,20 +304,37 @@ def show_metric_cards(df: pd.DataFrame) -> None:
         </div>""", unsafe_allow_html=True)
 
 
+def format_value(value, suffix="", decimals=1):
+    if pd.isna(value):
+        return "暫缺"
+    return f"{value:.{decimals}f}{suffix}"
+
+
+def format_text(value):
+    if pd.isna(value):
+        return "暫缺"
+    value = str(value).strip()
+    if value == "" or value.lower() == "none" or value.lower() == "nan":
+        return "暫缺"
+    return value
+
+
 def show_weather_cards(df: pd.DataFrame) -> None:
     latest = df.iloc[-1]
     c1, c2, c3, c4, c5, c6 = st.columns(6)
-    c1.metric("溫度", f"{latest.get('temperature_c', np.nan):.1f} °C")
-    c2.metric("體感溫度", f"{latest.get('apparent_temperature_c', np.nan):.1f} °C")
-    c3.metric("相對濕度", f"{latest.get('rh', np.nan):.0f} %")
-    c4.metric("降雨機率", f"{latest.get('rain_probability', np.nan):.0f} %")
-    c5.metric("天氣狀況", str(latest.get("weather", "暫缺")))
-    c6.metric("舒適度", str(latest.get("comfort", "暫缺")))
+
+    c1.metric("溫度", format_value(latest.get("temperature_c", np.nan), " °C", 1))
+    c2.metric("體感溫度", format_value(latest.get("apparent_temperature_c", np.nan), " °C", 1))
+    c3.metric("相對濕度", format_value(latest.get("rh", np.nan), " %", 0))
+    c4.metric("降雨機率", format_value(latest.get("rain_probability", np.nan), " %", 0))
+    c5.metric("天氣狀況", format_text(latest.get("weather", "暫缺")))
+    c6.metric("舒適度", format_text(latest.get("comfort", "暫缺")))
+
     st.caption(
-        f"風向：{latest.get('wind_dir_text', '暫缺')}｜"
-        f"風向角度：{latest.get('wind_dir', np.nan):.0f}°｜"
-        f"風速：{latest.get('wind_speed', np.nan):.1f} m/s｜"
-        f"風級：{latest.get('wind_level', np.nan):.0f}"
+        f"風向：{format_text(latest.get('wind_dir_text', '暫缺'))}｜"
+        f"風向角度：{format_value(latest.get('wind_dir', np.nan), '°', 0)}｜"
+        f"風速：{format_value(latest.get('wind_speed', np.nan), ' m/s', 1)}｜"
+        f"風級：{format_value(latest.get('wind_level', np.nan), '', 0)}"
     )
 
 
@@ -409,8 +426,6 @@ show_aqi_legend()
 
 day_df = filter_selected_date(raw_df, selected_date_value)
 selected_df = filter_selected_time(raw_df, selected_date_value, selected_time)
-st.caption(
-
 
 if day_df.empty:
     st.error(f"目前沒有 {selected_date_label} 的資料。請確認 CSV 是否包含該日期。")
@@ -419,6 +434,12 @@ if day_df.empty:
 if selected_df.empty:
     st.warning(f"目前沒有 {selected_date_label} {selected_time} 的資料。請確認 CSV 是否包含該時段。")
     st.stop()
+
+st.caption(
+    f"目前讀取 {selected_date_label} 共 {len(day_df)} 筆資料，"
+    f"時間範圍：{day_df['datetime'].min().strftime('%H:%M')}～"
+    f"{day_df['datetime'].max().strftime('%H:%M')}"
+)
 
 show_metric_cards(selected_df)
 show_weather_cards(selected_df)
@@ -445,18 +466,18 @@ with tab2:
                     "wind_dir", "wind_dir_text", "comfort"]
     existing_weather_cols = [col for col in weather_cols if col in day_df.columns]
     st.dataframe(
-    day_df[existing_weather_cols],
-    use_container_width=True,
-    height=900,
-)
+        day_df[existing_weather_cols],
+        use_container_width=True,
+        height=900,
+    )
 
 with tab3:
     st.subheader("原始資料表")
     st.dataframe(
-    day_df,
-    use_container_width=True,
-    height=900,
-)
+        day_df,
+        use_container_width=True,
+        height=900,
+    )
 
 with tab4:
     st.subheader("此時段判讀")
