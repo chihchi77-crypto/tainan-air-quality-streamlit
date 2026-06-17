@@ -409,6 +409,10 @@ show_aqi_legend()
 
 day_df = filter_selected_date(raw_df, selected_date_value)
 selected_df = filter_selected_time(raw_df, selected_date_value, selected_time)
+st.caption(
+    f"目前讀取 {selected_date_label} 共 {len(day_df)} 筆資料，"
+    f"時間範圍：{day_df['datetime'].min().strftime('%H:%M')}～{day_df['datetime'].max().strftime('%H:%M')}"
+)
 
 if day_df.empty:
     st.error(f"目前沒有 {selected_date_label} 的資料。請確認 CSV 是否包含該日期。")
@@ -442,11 +446,19 @@ with tab2:
                     "weather", "rain_probability", "wind_speed", "wind_level",
                     "wind_dir", "wind_dir_text", "comfort"]
     existing_weather_cols = [col for col in weather_cols if col in day_df.columns]
-    st.dataframe(day_df[existing_weather_cols], use_container_width=True)
+    st.dataframe(
+    day_df[existing_weather_cols],
+    use_container_width=True,
+    height=900,
+)
 
 with tab3:
     st.subheader("原始資料表")
-    st.dataframe(day_df, use_container_width=True)
+    st.dataframe(
+    day_df,
+    use_container_width=True,
+    height=900,
+)
 
 with tab4:
     st.subheader("此時段判讀")
