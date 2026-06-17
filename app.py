@@ -396,7 +396,7 @@ background: #eeeeee; margin-top: 16px; border-radius: 8px 8px 0 0;}
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-title">▌臺南 6/16 空氣品質、氣象與車流曲線圖</div>', unsafe_allow_html=True)
-st.caption("正式 DATA.csv｜臺南光化測站空品資料 × 氣象資料 × YOLOv8 車流統計 × 風向風速對照")
+st.caption("臺南光化測站空品資料 × Air Quality Index × Weather phenomenon × YOLOv8")
 
 with st.sidebar:
     st.header("資料設定")
